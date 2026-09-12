@@ -9,7 +9,7 @@ function publicUser(user) {
   return { id: user._id, name: user.name, email: user.email };
 }
 
-authRouter.post("/register", async (req, res) => {
+async function signupHandler(req, res) {
   const { name, email, password } = req.body ?? {};
   if (!name || !email || !password || String(password).length < 8) {
     return res.status(400).json({ error: "Name, email and a password of at least 8 characters are required." });
@@ -19,7 +19,10 @@ authRouter.post("/register", async (req, res) => {
   const passwordHash = await bcrypt.hash(String(password), 12);
   const user = await User.create({ name, email: String(email).toLowerCase(), passwordHash, selectedCards: [] });
   return res.status(201).json({ token: signToken(user._id), user: publicUser(user) });
-});
+}
+
+authRouter.post("/register", signupHandler);
+authRouter.post("/signup", signupHandler);
 
 authRouter.post("/login", async (req, res) => {
   const { email, password } = req.body ?? {};
