@@ -1,4 +1,4 @@
-const API_URL = (import.meta.env['VITE_API_URL'] as string | undefined) ?? "http://localhost:5000";
+const API_URL = import.meta.env['VITE_API_URL'] as string | undefined;
 const TOKEN_KEY = "offerme_token";
 
 export function getToken(): string | null {
@@ -13,6 +13,11 @@ export function setToken(token: string | null) {
 }
 
 export async function api<T>(path: string, options: RequestInit = {}): Promise<T> {
+  if (!API_URL) {
+    throw new Error(
+      "Backend URL is not configured. Set VITE_API_URL to your deployed OfferMe API URL (e.g. https://your-api.onrender.com) in the frontend environment.",
+    );
+  }
   const token = getToken();
   const response = await fetch(`${API_URL}${path}`, {
     ...options,
