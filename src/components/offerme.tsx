@@ -72,7 +72,7 @@ export function OfferMeProvider({ children }: { children: ReactNode }) {
       setMessage("This card is already in My Cards.");
       return;
     }
-    const code = bank.startsWith("National") ? "NBK" : bank.startsWith("American") ? "AMEX" : bank.split(" ")[0];
+    const code = bank.startsWith("National") ? "NBK" : bank.startsWith("American") ? "AMEX" : (bank.split(" ")[0] ?? "CARD");
     setCards((current) => [...current, { bank, product, code }]);
     setMessage("Card added successfully");
     window.setTimeout(() => {
