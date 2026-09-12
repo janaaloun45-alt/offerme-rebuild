@@ -121,6 +121,12 @@ function OffersPage() {
                 <div className="text-xs font-bold"><span className="mb-1 block uppercase text-muted-foreground">You save</span><b className="text-xl text-rose">{kwd(saving)}</b></div>
                 <div className="text-xs font-bold"><span className="mb-1 block uppercase text-muted-foreground">Final amount</span><b className="text-xl">{kwd(finalAmount)}</b></div>
               </div>
+              {(ai.loading || ai.text) && (
+                <div className="mt-4 rounded-xl bg-secondary p-4">
+                  <small className="block text-[9px] font-bold uppercase text-muted-foreground">Smart Recommendation</small>
+                  <p className="mt-1 text-sm">{ai.loading && !ai.text ? "Generating recommendation…" : ai.text}</p>
+                </div>
+              )}
             </section>
           )}
           {emptyMessage && (
