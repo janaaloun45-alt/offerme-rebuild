@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
+import { explainOffer } from "@/lib/ai.functions";
 import { Check, Grid2X2, MapPin, Search, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CardsPanel, DemoNotice, PageShell } from "@/components/offerme";
@@ -42,6 +44,7 @@ function OffersPage() {
   const [match, setMatch] = useState<MatchResponse | null>(null);
   const [amount, setAmount] = useState(5);
   const [ai, setAi] = useState<{ key: string; text: string | null; loading: boolean }>({ key: "", text: null, loading: false });
+  const explain = useServerFn(explainOffer);
 
   useEffect(() => {
     const term = query.trim();
