@@ -4,7 +4,6 @@ import {
   ArrowRight,
   BadgeCheck,
   Bell,
-  ChevronDown,
   CircleDollarSign,
   CreditCard,
   LockKeyhole,
@@ -110,7 +109,7 @@ function CardsProvider({ children }: { children: ReactNode }) {
   async function addCard() {
     if (!bank || !product) return;
     if (!user) {
-      setMessage("Please sign in to save cards to your account.");
+      setMessage("Please log in or sign up to save cards to your account.");
       return;
     }
     if (cards.some((card) => card.bank === bank && card.product === product)) {
@@ -176,6 +175,7 @@ function CardsProvider({ children }: { children: ReactNode }) {
                 <SelectContent>{available.map((name) => <SelectItem key={name} value={name}>{name}</SelectItem>)}</SelectContent>
               </Select>
             </div>
+            {!user && <p className="rounded-lg bg-secondary px-4 py-3 text-sm font-semibold">You need an account to save cards. <Link to="/login" className="text-rose" onClick={() => setOpen(false)}>Log In</Link> or <Link to="/signup" className="text-rose" onClick={() => setOpen(false)}>Sign Up</Link>.</p>}
             {message && <p role="status" className="rounded-lg bg-rose-soft px-4 py-3 text-sm font-semibold text-accent-foreground">{message}</p>}
             <Button onClick={() => void addCard()} disabled={!bank || !product} className="h-12 w-full rounded-full">Add to My Cards</Button>
             <p className="text-center text-xs text-muted-foreground">Only your bank and card product are saved. Never card numbers or banking credentials.</p>
@@ -204,19 +204,36 @@ function HeaderAccount() {
   const { user, logout } = useAuth();
   if (!user) {
     return (
-      <Link to="/auth" className="hidden items-center gap-2 rounded-full bg-secondary px-3 py-1.5 text-xs 2xl:flex">
-        <span className="grid h-7 w-7 place-items-center rounded-full bg-card font-bold">OA</span>
-        <span><b className="block">Sign in</b><small className="text-rose">Save your cards</small></span>
-        <ChevronDown className="h-3 w-3" />
-      </Link>
+      <div className="hidden items-center gap-2 text-xs font-semibold lg:flex">
+        <Link to="/login" className="rounded-full bg-secondary px-4 py-2">Log In</Link>
+        <Link to="/signup" className="rounded-full bg-primary px-4 py-2 text-primary-foreground">Sign Up</Link>
+      </div>
     );
   }
   return (
-    <button type="button" onClick={logout} className="hidden items-center gap-2 rounded-full bg-secondary px-3 py-1.5 text-xs 2xl:flex">
+    <div className="hidden items-center gap-2 rounded-full bg-secondary px-3 py-1.5 text-xs lg:flex">
       <span className="grid h-7 w-7 place-items-center rounded-full bg-card font-bold">{user.name.slice(0, 2).toUpperCase()}</span>
-      <span className="text-left"><b className="block">{user.name}</b><small className="text-rose">Sign out</small></span>
-      <ChevronDown className="h-3 w-3" />
-    </button>
+      <span className="min-w-0 text-left"><b className="block max-w-[9rem] truncate">{user.name}</b><Link to="/my-cards" className="text-rose">My Cards</Link></span>
+      <button type="button" onClick={logout} className="rounded-full bg-card px-3 py-1 font-semibold">Log Out</button>
+    </div>
+  );
+}
+
+function MobileAccount({ onNavigate }: { onNavigate: () => void }) {
+  const { user, logout } = useAuth();
+  if (!user) {
+    return (
+      <div className="mt-2 flex gap-2 lg:hidden">
+        <Link to="/login" onClick={onNavigate} className="flex-1 rounded-full bg-secondary px-4 py-2 text-center text-sm font-semibold">Log In</Link>
+        <Link to="/signup" onClick={onNavigate} className="flex-1 rounded-full bg-primary px-4 py-2 text-center text-sm font-semibold text-primary-foreground">Sign Up</Link>
+      </div>
+    );
+  }
+  return (
+    <div className="mt-2 flex items-center justify-between gap-2 rounded-full bg-secondary px-4 py-2 text-sm font-semibold lg:hidden">
+      <span className="min-w-0 truncate">{user.name}</span>
+      <button type="button" onClick={() => { logout(); onNavigate(); }} className="rounded-full bg-card px-3 py-1 text-xs">Log Out</button>
+    </div>
   );
 }
 
@@ -233,6 +250,7 @@ export function SiteHeader() {
         <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMenuOpen((value) => !value)} aria-label="Toggle menu">{menuOpen ? <X /> : <Menu />}</Button>
         <nav className={`${menuOpen ? "flex" : "hidden"} absolute left-0 right-0 top-16 flex-col gap-1 border-b border-border bg-background p-4 lg:static lg:flex lg:flex-row lg:border-0 lg:p-0`}>
           {nav.map((item) => <Link key={item.to} to={item.to} activeOptions={{ exact: item.to === "/" }} onClick={() => setMenuOpen(false)} className="rounded-full px-4 py-2 text-sm font-semibold text-muted-foreground" activeProps={{ className: "bg-primary text-primary-foreground" }}>{item.label}</Link>)}
+          <MobileAccount onNavigate={() => setMenuOpen(false)} />
         </nav>
         <div className="ml-auto hidden min-w-0 flex-1 items-center justify-end gap-2 lg:flex">
           <label className="flex h-10 max-w-xs flex-1 items-center gap-2 rounded-full bg-secondary px-4 text-xs text-muted-foreground"><Search className="h-4 w-4" /><input className="min-w-0 flex-1 bg-transparent outline-none" placeholder="Search cafes, retail, dining..." /><kbd className="rounded bg-card px-1.5 py-0.5">⌘K</kbd></label>
