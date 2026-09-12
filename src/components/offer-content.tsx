@@ -1,12 +1,14 @@
 import { Link } from "@tanstack/react-router";
 import { Bookmark, Coffee, Film, MapPin, Plane, Search, ShoppingBag, Smartphone, Utensils } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import coffee from "@/assets/demo-coffee.jpg";
-import arabica from "@/assets/demo-arabica.jpg";
-import cinema from "@/assets/demo-cinema.jpg";
-import yogurt from "@/assets/demo-yogurt.jpg";
-import fashion from "@/assets/demo-fashion.jpg";
-import dining from "@/assets/demo-dining.jpg";
+import coffee from "@/assets/merchants/caribou.jpg";
+import arabica from "@/assets/merchants/arabica.jpg";
+import cinema from "@/assets/merchants/vox-cinemas.jpg";
+import yogurt from "@/assets/merchants/pick.jpg";
+import fashion from "@/assets/merchants/zara.jpg";
+import dining from "@/assets/merchants/dean-deluca.jpg";
+import nike from "@/assets/merchants/nike.jpg";
+import shakeShack from "@/assets/merchants/shake-shack.jpg";
 import type { ApiOffer } from "@/lib/api";
 
 
@@ -23,6 +25,23 @@ export const offers = [
 
 const categoryImages: Record<string, string> = { Dining: dining, Entertainment: cinema, Fashion: fashion, Coffee: coffee };
 
+const merchantImages: Record<string, string> = {
+  caribou: coffee,
+  arabica: arabica,
+  vox: cinema,
+  pick: yogurt,
+  zara: fashion,
+  dean: dining,
+  nike: nike,
+  "shake shack": shakeShack,
+};
+
+function merchantImage(name: string) {
+  const key = name.toLowerCase();
+  const match = Object.keys(merchantImages).find((k) => key.includes(k));
+  return match ? merchantImages[match] : undefined;
+}
+
 export function mapApiOffer(offer: ApiOffer): typeof primaryOffer {
   const card = offer.eligibleCards?.[0];
   return {
@@ -32,7 +51,7 @@ export function mapApiOffer(offer: ApiOffer): typeof primaryOffer {
     description: offer.description ?? "",
     bank: card ? `${card.bankName} · ${card.cardName}` : "Eligible card",
     tag: (offer.offerType ?? "DEMO").toUpperCase(),
-    image: offer.imageUrl || categoryImages[offer.category ?? ""] || dining,
+    image: merchantImage(offer.merchantName) || offer.imageUrl || categoryImages[offer.category ?? ""] || dining,
     location: "Kuwait",
     savings: "Demo",
   };
@@ -50,7 +69,7 @@ export function SearchBar({ button = true }: { button?: boolean }) {
 }
 
 export function OfferCard({ offer = primaryOffer, detailed = false }: { offer?: typeof primaryOffer; detailed?: boolean }) {
-  const body = <article className="overflow-hidden rounded-xl bg-card soft-shadow"><div className="relative aspect-[1.72/1] overflow-hidden"><img src={offer.image} alt={`Illustrative ${offer.category.toLowerCase()} scene`} width={1200} height={760} loading="lazy" className="h-full w-full object-cover" /><span className="absolute left-3 top-3 rounded-full bg-primary px-3 py-1 text-[10px] font-extrabold text-primary-foreground">{offer.perk}</span><span className="absolute bottom-3 left-3 rounded-full bg-card px-3 py-1 text-[9px] font-semibold"><MapPin className="mr-1 inline h-3 w-3 text-rose" />{offer.location}</span><span className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full bg-card"><Bookmark className="h-4 w-4" /></span></div><div className="p-4"><div className="flex justify-between gap-3 text-[9px] font-semibold text-muted-foreground"><span>{offer.category}</span><span className="text-rose">Demo offer</span></div><h3 className="mt-1 text-lg font-bold">{offer.name}</h3><p className="mt-1 min-h-10 text-xs leading-5 text-muted-foreground">{offer.description}</p><div className="mt-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-lg bg-secondary px-3 py-2 text-[9px] font-bold"><span className="truncate">● &nbsp;{offer.bank}</span><span className="text-rose">{offer.tag}</span></div>{detailed && <div className="mt-3 flex items-end justify-between"><div><small className="block text-[9px] text-muted-foreground">Typical demo saving</small><b className="text-lg text-rose">{offer.savings}</b></div><Button asChild size="sm" className="rounded-full"><Link to="/offer/caribou-coffee">Unlock Perk</Link></Button></div>}</div></article>;
+  const body = <article className="overflow-hidden rounded-xl bg-card soft-shadow"><div className="relative aspect-[1.72/1] overflow-hidden"><img src={offer.image} alt={`${offer.name} storefront`} width={1200} height={760} loading="lazy" className="h-full w-full object-cover" /><span className="absolute left-3 top-3 rounded-full bg-primary px-3 py-1 text-[10px] font-extrabold text-primary-foreground">{offer.perk}</span><span className="absolute bottom-3 left-3 rounded-full bg-card px-3 py-1 text-[9px] font-semibold"><MapPin className="mr-1 inline h-3 w-3 text-rose" />{offer.location}</span><span className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full bg-card"><Bookmark className="h-4 w-4" /></span></div><div className="p-4"><div className="flex justify-between gap-3 text-[9px] font-semibold text-muted-foreground"><span>{offer.category}</span><span className="text-rose">Demo offer</span></div><h3 className="mt-1 text-lg font-bold">{offer.name}</h3><p className="mt-1 min-h-10 text-xs leading-5 text-muted-foreground">{offer.description}</p><div className="mt-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-lg bg-secondary px-3 py-2 text-[9px] font-bold"><span className="truncate">● &nbsp;{offer.bank}</span><span className="text-rose">{offer.tag}</span></div>{detailed && <div className="mt-3 flex items-end justify-between"><div><small className="block text-[9px] text-muted-foreground">Typical demo saving</small><b className="text-lg text-rose">{offer.savings}</b></div><Button asChild size="sm" className="rounded-full"><Link to="/offer/caribou-coffee">Unlock Perk</Link></Button></div>}</div></article>;
   return body;
 }
 
