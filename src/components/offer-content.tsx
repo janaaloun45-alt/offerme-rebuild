@@ -19,6 +19,24 @@ export const offers = [
   { name: "Dean & Deluca", category: "Fine Bistro & Gourmet", perk: "20% DINE-IN", description: "Demo direct bill discount on food and drinks.", bank: "Gulf Bank Mastercard", tag: "DIRECT POS", image: dining, location: "The Avenues Grand Avenue", savings: "KD 2.450" },
 ];
 
+const categoryImages: Record<string, string> = { Dining: dining, Entertainment: cinema, Fashion: fashion, Coffee: coffee };
+
+export function mapApiOffer(offer: ApiOffer): typeof primaryOffer {
+  const card = offer.eligibleCards?.[0];
+  return {
+    name: offer.merchantName,
+    category: offer.category ?? "Demo offer",
+    perk: (offer.offerValue ?? "OFFER").toUpperCase(),
+    description: offer.description ?? "",
+    bank: card ? `${card.bankName} · ${card.cardName}` : "Eligible card",
+    tag: (offer.offerType ?? "DEMO").toUpperCase(),
+    image: offer.imageUrl || categoryImages[offer.category ?? ""] || dining,
+    location: "Kuwait",
+    savings: "Demo",
+  };
+}
+
+
 export const categories = [
   { name: "Coffee", count: 48, icon: Coffee }, { name: "Dining & Lounges", count: 62, icon: Utensils },
   { name: "Shopping & Boutiques", count: 39, icon: ShoppingBag }, { name: "Entertainment", count: 25, icon: Film },
