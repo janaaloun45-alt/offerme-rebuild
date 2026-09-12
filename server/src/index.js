@@ -9,9 +9,21 @@ import { userCardsRouter } from "./routes/userCards.js";
 
 const app = express();
 app.use(express.json());
+const allowedOrigins = (process.env.FRONTEND_URL ?? "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(",") : true,
+    origin(origin, callback) {
+      // Allow same-origin/curl (no Origin header), explicit FRONTEND_URL list,
+      // and any Lovable preview/published domain.
+      if (!origin || allowedOrigins.includes(origin) || /\.lovable\.app$/.test(new URL(origin).hostname)) {
+        return callback(null, true);
+      }
+      return callback(new Error("Not allowed by CORS"));
+    },
   }),
 );
 
