@@ -6,6 +6,7 @@ import { authRouter } from "./routes/auth.js";
 import { cardsRouter } from "./routes/cards.js";
 import { offersRouter } from "./routes/offers.js";
 import { userCardsRouter } from "./routes/userCards.js";
+import { aiRouter } from "./routes/ai.js";
 
 const app = express();
 app.use(express.json());
