@@ -1,1 +1,1 @@
-- [ ] Diagnose and fix the remaining deployed signup fetch failure
+- [x] Diagnose and fix the remaining deployed signup fetch failure
