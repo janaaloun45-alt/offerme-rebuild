@@ -7,6 +7,8 @@ import cinema from "@/assets/demo-cinema.jpg";
 import yogurt from "@/assets/demo-yogurt.jpg";
 import fashion from "@/assets/demo-fashion.jpg";
 import dining from "@/assets/demo-dining.jpg";
+import type { ApiOffer } from "@/lib/api";
+
 
 export const primaryOffer = { name: "Caribou Coffee", category: "Coffee & Bakery", perk: "20% OFF", description: "Direct 20% discount on handcrafted beverages and breakfast bakery items.", bank: "NBK Visa Platinum", tag: "AUTO-APPLIED", image: coffee, location: "0.6 km · Kuwait City Hub", savings: "KD 1.000" };
 
