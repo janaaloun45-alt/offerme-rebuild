@@ -34,9 +34,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export type SavedCard = { bank: string; product: string; code: string };
+export type SavedCard = { bank: string; product: string; code: string; id?: string };
 
-const products: Record<string, string[]> = {
+const fallbackProducts: Record<string, string[]> = {
   "National Bank of Kuwait (NBK)": ["Visa Platinum", "Visa Signature", "Mastercard"],
   "Boubyan Bank": ["Prime Visa", "Visa Signature", "Youth Card"],
   "Kuwait Finance House (KFH)": ["Hesabi Visa", "Visa Platinum", "Mastercard World"],
@@ -44,11 +44,13 @@ const products: Record<string, string[]> = {
   "American Express Middle East": ["Gold Card", "Platinum Card", "Green Card"],
 };
 
-const initialCards: SavedCard[] = [
-  { bank: "National Bank of Kuwait (NBK)", product: "Visa Platinum", code: "NBK" },
-  { bank: "Boubyan Bank", product: "Prime Visa", code: "B" },
-  { bank: "Gulf Bank", product: "red Mastercard", code: "G" },
-];
+function codeFor(bank: string) {
+  return bank.startsWith("National") ? "NBK" : bank.startsWith("American") ? "AMEX" : (bank.split(" ")[0] ?? "CARD");
+}
+
+function toSaved(card: ApiCard): SavedCard {
+  return { bank: card.bankName, product: card.cardName, code: codeFor(card.bankName), id: card._id };
+}
 
 type CardsContextValue = {
   cards: SavedCard[];
@@ -59,36 +61,92 @@ type CardsContextValue = {
 const CardsContext = createContext<CardsContextValue | undefined>(undefined);
 
 export function OfferMeProvider({ children }: { children: ReactNode }) {
-  const [cards, setCards] = useState(initialCards);
+  return (
+    <AuthProvider>
+      <CardsProvider>{children}</CardsProvider>
+    </AuthProvider>
+  );
+}
+
+function CardsProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+  const [cards, setCards] = useState<SavedCard[]>([]);
+  const [catalogue, setCatalogue] = useState<ApiCard[]>([]);
   const [open, setOpen] = useState(false);
   const [bank, setBank] = useState("");
   const [product, setProduct] = useState("");
   const [message, setMessage] = useState("");
-  const available = useMemo(() => (bank ? products[bank] ?? [] : []), [bank]);
 
-  function addCard() {
+  useEffect(() => {
+    api<{ cards: ApiCard[] }>("/api/cards")
+      .then((data) => setCatalogue(data.cards))
+      .catch(() => setCatalogue([]));
+  }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setCards([]);
+      return;
+    }
+    api<{ cards: ApiCard[] }>("/api/user-cards")
+      .then((data) => setCards(data.cards.map(toSaved)))
+      .catch(() => setCards([]));
+  }, [user]);
+
+  const products = useMemo(() => {
+    if (catalogue.length === 0) return fallbackProducts;
+    const grouped: Record<string, string[]> = {};
+    for (const card of catalogue) {
+      (grouped[card.bankName] ??= []).push(card.cardName);
+    }
+    return grouped;
+  }, [catalogue]);
+
+  const available = useMemo(() => (bank ? products[bank] ?? [] : []), [bank, products]);
+
+  async function addCard() {
     if (!bank || !product) return;
-    const duplicate = cards.some((card) => card.bank === bank && card.product === product);
-    if (duplicate) {
+    if (!user) {
+      setMessage("Please sign in to save cards to your account.");
+      return;
+    }
+    if (cards.some((card) => card.bank === bank && card.product === product)) {
       setMessage("This card is already in My Cards.");
       return;
     }
-    const code = bank.startsWith("National") ? "NBK" : bank.startsWith("American") ? "AMEX" : (bank.split(" ")[0] ?? "CARD");
-    setCards((current) => [...current, { bank, product, code }]);
-    setMessage("Card added successfully");
-    window.setTimeout(() => {
-      setOpen(false);
-      setBank("");
-      setProduct("");
-      setMessage("");
-    }, 700);
+    try {
+      const data = await api<{ cards: ApiCard[] }>("/api/user-cards", {
+        method: "POST",
+        body: JSON.stringify({ bankName: bank, cardName: product }),
+      });
+      setCards(data.cards.map(toSaved));
+      setMessage("Card added successfully");
+      window.setTimeout(() => {
+        setOpen(false);
+        setBank("");
+        setProduct("");
+        setMessage("");
+      }, 700);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Could not add this card.");
+    }
+  }
+
+  async function removeCard(card: SavedCard) {
+    if (!card.id) return;
+    try {
+      const data = await api<{ cards: ApiCard[] }>(`/api/user-cards/${card.id}`, { method: "DELETE" });
+      setCards(data.cards.map(toSaved));
+    } catch {
+      /* keep current list on failure */
+    }
   }
 
   return (
     <CardsContext.Provider
       value={{
         cards,
-        removeCard: (card) => setCards((current) => current.filter((item) => item.bank !== card.bank || item.product !== card.product)),
+        removeCard: (card) => void removeCard(card),
         openAddCard: () => setOpen(true),
       }}
     >
@@ -116,7 +174,7 @@ export function OfferMeProvider({ children }: { children: ReactNode }) {
               </Select>
             </div>
             {message && <p role="status" className="rounded-lg bg-rose-soft px-4 py-3 text-sm font-semibold text-accent-foreground">{message}</p>}
-            <Button onClick={addCard} disabled={!bank || !product} className="h-12 w-full rounded-full">Add to My Cards</Button>
+            <Button onClick={() => void addCard()} disabled={!bank || !product} className="h-12 w-full rounded-full">Add to My Cards</Button>
             <p className="text-center text-xs text-muted-foreground">Only your bank and card product are saved. Never card numbers or banking credentials.</p>
           </div>
         </DialogContent>
@@ -130,6 +188,7 @@ export function useCards() {
   if (!value) throw new Error("useCards must be used inside OfferMeProvider");
   return value;
 }
+
 
 const nav = [
   { to: "/", label: "Home" },
