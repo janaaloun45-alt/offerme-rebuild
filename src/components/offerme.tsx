@@ -1,3 +1,4 @@
+import logoAsset from "@/assets/offerme-logo.png.asset.json";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowRight,
@@ -143,7 +144,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
       <div className="mx-auto grid h-16 max-w-[1480px] grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 lg:flex lg:px-6">
         <Link to="/" className="flex min-w-0 shrink-0 items-center gap-2" aria-label="OfferMe home">
-          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-card soft-shadow"><span className="h-3 w-3 rounded-full border-[3px] border-foreground" /></span>
+          <img src={logoAsset.url} alt="OfferMe" className="h-9 w-auto shrink-0" />
           <span className="min-w-0 leading-none"><strong className="block truncate text-lg">OfferMe <em className="rounded bg-rose-soft px-1 text-[9px] not-italic text-rose">KUWAIT</em></strong><small className="hidden text-[9px] text-muted-foreground xl:block">Your cards have perks. Find them.</small></span>
         </Link>
         <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMenuOpen((value) => !value)} aria-label="Toggle menu">{menuOpen ? <X /> : <Menu />}</Button>
@@ -165,7 +166,7 @@ export function SiteFooter() {
   return (
     <footer className="mt-20 bg-surface px-4 py-12">
       <div className="mx-auto grid max-w-[1420px] gap-10 md:grid-cols-[1.5fr_1fr_1fr]">
-        <div><div className="mb-4 flex items-center gap-2 text-xl font-bold"><span className="grid h-8 w-8 place-items-center rounded-full bg-card"><span className="h-3 w-3 rounded-full border-[3px] border-foreground" /></span>OfferMe Kuwait</div><p className="max-w-lg text-sm leading-6 text-muted-foreground">The lifestyle card-perk engine built for Kuwait. Match every bill in KD with demo benefits before you pay.</p><div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold"><span className="rounded-full bg-card px-3 py-2"><LockKeyhole className="mr-1 inline h-3 w-3 text-rose" /> Zero banking credentials stored</span><span className="rounded-full bg-rose-soft px-3 py-2 text-accent-foreground">Kuwait Campus Perks</span></div></div>
+        <div><div className="mb-4 flex items-center gap-2 text-xl font-bold"><img src={logoAsset.url} alt="OfferMe" className="h-8 w-auto" />OfferMe Kuwait</div><p className="max-w-lg text-sm leading-6 text-muted-foreground">The lifestyle card-perk engine built for Kuwait. Match every bill in KD with demo benefits before you pay.</p><div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold"><span className="rounded-full bg-card px-3 py-2"><LockKeyhole className="mr-1 inline h-3 w-3 text-rose" /> Zero banking credentials stored</span><span className="rounded-full bg-rose-soft px-3 py-2 text-accent-foreground">Kuwait Campus Perks</span></div></div>
         <div><h3 className="mb-3 font-bold">Kuwait Partner Cards</h3><ul className="space-y-2 text-sm text-muted-foreground"><li>National Bank of Kuwait (NBK)</li><li>Boubyan Bank Prime & Youth</li><li>Gulf Bank red™ Program</li><li>Kuwait Finance House (KFH) Hesabi</li><li>Burgan Bank Youth Solutions</li></ul></div>
         <div><h3 className="mb-3 font-bold">Campus & City Hubs</h3><ul className="space-y-2 text-sm text-muted-foreground"><li>Kuwait University (KU)</li><li>Gulf University for Science & Tech</li><li>American University of Kuwait</li><li>The Avenues & Shuwaikh Cafes</li><li>Salmiya Retail & Dining</li></ul></div>
       </div>
