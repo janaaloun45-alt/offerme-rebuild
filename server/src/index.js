@@ -33,6 +33,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/cards", cardsRouter);
 app.use("/api/user-cards", userCardsRouter);
 app.use("/api/offers", offersRouter);
+app.use("/api/ai", aiRouter);
 
 app.use((err, _req, res, _next) => {
   console.error(err);

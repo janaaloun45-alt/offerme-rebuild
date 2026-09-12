@@ -41,6 +41,7 @@ function OffersPage() {
   const [query, setQuery] = useState("");
   const [match, setMatch] = useState<MatchResponse | null>(null);
   const [amount, setAmount] = useState(5);
+  const [ai, setAi] = useState<{ key: string; text: string | null; loading: boolean }>({ key: "", text: null, loading: false });
 
   useEffect(() => {
     const term = query.trim();
