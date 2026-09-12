@@ -18,6 +18,30 @@ export const Route = createFileRoute("/offer/caribou-coffee")({
 function OfferDetailPage() {
   const [amount, setAmount] = useState(5);
   const saving = amount * .2;
+  const finalAmount = amount - saving;
+  const [ai, setAi] = useState<{ text: string | null; loading: boolean }>({ text: null, loading: true });
+  const explain = useServerFn(explainOffer);
+
+  // AI only explains the deterministic result above; it never calculates it.
+  useEffect(() => {
+    let active = true;
+    setAi((prev) => ({ text: prev.text, loading: true }));
+    const timer = window.setTimeout(() => {
+      explain({ data: {
+        merchantName: "Caribou Coffee",
+        bankName: "NBK",
+        cardName: "Visa Platinum",
+        offerType: "Discount",
+        offerValue: "20% off",
+        billAmount: Number(amount.toFixed(3)),
+        savings: Number(saving.toFixed(3)),
+        finalAmount: Number(finalAmount.toFixed(3)),
+      } })
+        .then((data) => { if (active) setAi({ text: data.explanation || null, loading: false }); })
+        .catch(() => { if (active) setAi({ text: null, loading: false }); });
+    }, 400);
+    return () => { active = false; window.clearTimeout(timer); };
+  }, [amount, saving, finalAmount]);
   return <PageShell><section className="mx-auto max-w-[1420px] px-4 py-8"><p className="mb-5 text-xs text-muted-foreground">Home / Coffee & Roasters / <b className="text-foreground">Caribou Coffee Demo Offer</b></p><div className="grid gap-8 lg:grid-cols-[1.2fr_.8fr] lg:items-start"><div className="space-y-5"><article className="overflow-hidden rounded-xl bg-card soft-shadow"><div className="relative aspect-[1.75/1] overflow-hidden"><img src={coffee} alt="Caribou Coffee storefront" width={1200} height={760} className="h-full w-full object-cover" /><span className="absolute left-4 top-4 rounded-full bg-rose-soft px-4 py-2 text-xs font-bold text-rose">BEST DEMO OFFER FOR YOU</span><span className="absolute bottom-5 left-5 rounded-xl bg-rose px-4 py-2 text-3xl font-extrabold text-rose-foreground">20% OFF</span></div><div className="p-6"><p className="text-[10px] font-bold uppercase text-rose">Specialty coffee & bakery · Demo merchant</p><h1 className="mt-2 text-3xl font-extrabold">Handcrafted Espresso, Cold Brews & Fresh Bakery</h1><div className="mt-5 flex items-center justify-between rounded-xl bg-rose-soft/60 p-4"><div><small className="font-bold text-rose">PRIMARY ELIGIBLE CARD</small><b className="mt-1 block">NBK Visa Platinum</b></div><span className="rounded-full bg-card px-3 py-2 text-[10px] font-bold">Instant Tap Perk</span></div><p className="mt-5 text-sm leading-6 text-muted-foreground">Demonstration terms only. Confirm all eligibility, dates, branches, and redemption instructions directly with the issuing bank before purchase.</p><div className="mt-5 flex flex-wrap gap-5 text-xs font-semibold"><span><MapPin className="mr-1 inline h-4 w-4 text-rose" />Kuwait branches</span><span><CreditCard className="mr-1 inline h-4 w-4 text-rose" />POS demo</span><span><CheckCircle2 className="mr-1 inline h-4 w-4 text-rose" />No minimum shown</span></div></div></article>
         <section className="rounded-xl bg-secondary p-5"><div className="mb-4 flex justify-between"><h2 className="text-xl font-bold">Other Eligible Cards In Your Wallet</h2><small>Tap to switch simulator</small></div><div className="grid gap-4 sm:grid-cols-2"><div className="rounded-xl bg-card p-5"><b>Boubyan Bank Visa</b><p className="mt-3 text-2xl font-extrabold text-rose">15% <small className="text-xs font-normal text-foreground">demo refund</small></p></div><div className="rounded-xl bg-card p-5"><b>Gulf Bank red™</b><p className="mt-3 text-2xl font-extrabold text-rose">BOGO <small className="text-xs font-normal text-foreground">demo pastry</small></p></div></div></section>
         <section className="rounded-xl bg-card p-6 soft-shadow"><h2 className="font-bold">ⓘ Terms & Redemption Checklist</h2><ul className="mt-4 list-disc space-y-2 pl-5 text-sm text-muted-foreground"><li>Available only to eligible cardholders, subject to issuer confirmation.</li><li>Demo discount applies to standard menu pricing.</li><li>Cannot be assumed combinable with other promotions.</li><li>Confirm participating locations before purchase.</li></ul></section></div>
