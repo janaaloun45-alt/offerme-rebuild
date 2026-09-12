@@ -30,6 +30,7 @@ app.use(
       const allowed =
         allowedOrigins.includes(origin) ||
         /(^|\.)lovable\.app$/.test(hostname) ||
+        /(^|\.)lovableproject\.com$/.test(hostname) ||
         /(^|\.)vercel\.app$/.test(hostname) ||
         hostname === "localhost" ||
         hostname === "127.0.0.1";
