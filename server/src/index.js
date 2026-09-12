@@ -29,6 +29,8 @@ app.use(
       }
       const allowed =
         allowedOrigins.includes(origin) ||
+        origin === "https://offerme-pixel-perfect.lovable.app" ||
+        origin === "https://offerme-rebuild-hqvw.vercel.app" ||
         /(^|\.)lovable\.app$/.test(hostname) ||
         /(^|\.)lovableproject\.com$/.test(hostname) ||
         /(^|\.)vercel\.app$/.test(hostname) ||
