@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { BadgeCheck, Bookmark, CheckCircle2, CreditCard, MapPin, Share2 } from "lucide-react";
-import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { BadgeCheck, Bookmark, CheckCircle2, CreditCard, MapPin, Share2, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { PageShell } from "@/components/offerme";
+import { explainOffer } from "@/lib/ai.functions";
 import coffee from "@/assets/merchants/caribou.jpg";
 
 export const Route = createFileRoute("/offer/caribou-coffee")({
