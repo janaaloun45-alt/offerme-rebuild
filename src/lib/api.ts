@@ -13,6 +13,11 @@ export function setToken(token: string | null) {
 }
 
 export async function api<T>(path: string, options: RequestInit = {}): Promise<T> {
+  if (!API_URL) {
+    throw new Error(
+      "Backend URL is not configured. Set VITE_API_URL to your deployed OfferMe API URL (e.g. https://your-api.onrender.com) in the frontend environment.",
+    );
+  }
   const token = getToken();
   const response = await fetch(`${API_URL}${path}`, {
     ...options,
