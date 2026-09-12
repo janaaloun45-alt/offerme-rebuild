@@ -11,9 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as MyCardsRouteImport } from './routes/my-cards'
 import { Route as OffersRouteImport } from './routes/offers'
 import { Route as SavingsRouteImport } from './routes/savings'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as OfferCaribouCoffeeRouteImport } from './routes/offer.caribou-coffee'
 
 const IndexRoute = IndexRouteImport.update({
@@ -24,6 +26,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MyCardsRoute = MyCardsRouteImport.update({
@@ -41,6 +48,11 @@ const SavingsRoute = SavingsRouteImport.update({
   path: '/savings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OfferCaribouCoffeeRoute = OfferCaribouCoffeeRouteImport.update({
   id: '/offer/caribou-coffee',
   path: '/offer/caribou-coffee',
@@ -50,26 +62,32 @@ const OfferCaribouCoffeeRoute = OfferCaribouCoffeeRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/login': typeof LoginRoute
   '/my-cards': typeof MyCardsRoute
   '/offers': typeof OffersRoute
   '/savings': typeof SavingsRoute
+  '/signup': typeof SignupRoute
   '/offer/caribou-coffee': typeof OfferCaribouCoffeeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/login': typeof LoginRoute
   '/my-cards': typeof MyCardsRoute
   '/offers': typeof OffersRoute
   '/savings': typeof SavingsRoute
+  '/signup': typeof SignupRoute
   '/offer/caribou-coffee': typeof OfferCaribouCoffeeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/login': typeof LoginRoute
   '/my-cards': typeof MyCardsRoute
   '/offers': typeof OffersRoute
   '/savings': typeof SavingsRoute
+  '/signup': typeof SignupRoute
   '/offer/caribou-coffee': typeof OfferCaribouCoffeeRoute
 }
 export interface FileRouteTypes {
@@ -77,34 +95,42 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/login'
     | '/my-cards'
     | '/offers'
     | '/savings'
+    | '/signup'
     | '/offer/caribou-coffee'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/login'
     | '/my-cards'
     | '/offers'
     | '/savings'
+    | '/signup'
     | '/offer/caribou-coffee'
   id:
     | '__root__'
     | '/'
     | '/auth'
+    | '/login'
     | '/my-cards'
     | '/offers'
     | '/savings'
+    | '/signup'
     | '/offer/caribou-coffee'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  LoginRoute: typeof LoginRoute
   MyCardsRoute: typeof MyCardsRoute
   OffersRoute: typeof OffersRoute
   SavingsRoute: typeof SavingsRoute
+  SignupRoute: typeof SignupRoute
   OfferCaribouCoffeeRoute: typeof OfferCaribouCoffeeRoute
 }
 
@@ -122,6 +148,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/my-cards': {
@@ -145,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SavingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/offer/caribou-coffee': {
       id: '/offer/caribou-coffee'
       path: '/offer/caribou-coffee'
@@ -158,9 +198,11 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  LoginRoute: LoginRoute,
   MyCardsRoute: MyCardsRoute,
   OffersRoute: OffersRoute,
   SavingsRoute: SavingsRoute,
+  SignupRoute: SignupRoute,
   OfferCaribouCoffeeRoute: OfferCaribouCoffeeRoute,
 }
 export const routeTree = rootRouteImport
