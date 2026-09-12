@@ -10,33 +10,80 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MyCardsRouteImport } from './routes/my-cards'
+import { Route as OffersRouteImport } from './routes/offers'
+import { Route as SavingsRouteImport } from './routes/savings'
+import { Route as OfferCaribouCoffeeRouteImport } from './routes/offer.caribou-coffee'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MyCardsRoute = MyCardsRouteImport.update({
+  id: '/my-cards',
+  path: '/my-cards',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OffersRoute = OffersRouteImport.update({
+  id: '/offers',
+  path: '/offers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SavingsRoute = SavingsRouteImport.update({
+  id: '/savings',
+  path: '/savings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OfferCaribouCoffeeRoute = OfferCaribouCoffeeRouteImport.update({
+  id: '/offer/caribou-coffee',
+  path: '/offer/caribou-coffee',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/my-cards': typeof MyCardsRoute
+  '/offers': typeof OffersRoute
+  '/savings': typeof SavingsRoute
+  '/offer/caribou-coffee': typeof OfferCaribouCoffeeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/my-cards': typeof MyCardsRoute
+  '/offers': typeof OffersRoute
+  '/savings': typeof SavingsRoute
+  '/offer/caribou-coffee': typeof OfferCaribouCoffeeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/my-cards': typeof MyCardsRoute
+  '/offers': typeof OffersRoute
+  '/savings': typeof SavingsRoute
+  '/offer/caribou-coffee': typeof OfferCaribouCoffeeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    '/' | '/my-cards' | '/offers' | '/savings' | '/offer/caribou-coffee'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/my-cards' | '/offers' | '/savings' | '/offer/caribou-coffee'
+  id:
+    | '__root__'
+    | '/'
+    | '/my-cards'
+    | '/offers'
+    | '/savings'
+    | '/offer/caribou-coffee'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  MyCardsRoute: typeof MyCardsRoute
+  OffersRoute: typeof OffersRoute
+  SavingsRoute: typeof SavingsRoute
+  OfferCaribouCoffeeRoute: typeof OfferCaribouCoffeeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +95,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/my-cards': {
+      id: '/my-cards'
+      path: '/my-cards'
+      fullPath: '/my-cards'
+      preLoaderRoute: typeof MyCardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/offers': {
+      id: '/offers'
+      path: '/offers'
+      fullPath: '/offers'
+      preLoaderRoute: typeof OffersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/savings': {
+      id: '/savings'
+      path: '/savings'
+      fullPath: '/savings'
+      preLoaderRoute: typeof SavingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/offer/caribou-coffee': {
+      id: '/offer/caribou-coffee'
+      path: '/offer/caribou-coffee'
+      fullPath: '/offer/caribou-coffee'
+      preLoaderRoute: typeof OfferCaribouCoffeeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  MyCardsRoute: MyCardsRoute,
+  OffersRoute: OffersRoute,
+  SavingsRoute: SavingsRoute,
+  OfferCaribouCoffeeRoute: OfferCaribouCoffeeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
