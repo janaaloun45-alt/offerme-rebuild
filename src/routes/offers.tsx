@@ -41,6 +41,7 @@ function OffersPage() {
   const [query, setQuery] = useState("");
   const [match, setMatch] = useState<MatchResponse | null>(null);
   const [amount, setAmount] = useState(5);
+  const [ai, setAi] = useState<{ key: string; text: string | null; loading: boolean }>({ key: "", text: null, loading: false });
 
   useEffect(() => {
     const term = query.trim();
@@ -59,6 +60,35 @@ function OffersPage() {
   const bestPercent = match?.bestOffer ? percentOf(match.bestOffer) : 0;
   const saving = useMemo(() => (amount * bestPercent) / 100, [amount, bestPercent]);
   const finalAmount = Math.max(amount - saving, 0);
+
+  // AI only explains the already-computed best offer; it never decides or calculates.
+  useEffect(() => {
+    const best = match?.bestOffer;
+    if (!best) {
+      setAi({ key: "", text: null, loading: false });
+      return;
+    }
+    const key = `${best._id}-${amount}`;
+    const timer = window.setTimeout(() => {
+      setAi((prev) => ({ key, text: prev.key === key ? prev.text : null, loading: true }));
+      api<{ explanation: string }>("/api/ai/explain-offer", {
+        method: "POST",
+        body: JSON.stringify({
+          merchantName: best.merchantName,
+          bankName: match?.bestOfferCard?.bankName ?? "",
+          cardName: match?.bestOfferCard?.cardName ?? "",
+          offerType: best.offerType ?? "",
+          offerValue: best.offerValue ?? "",
+          billAmount: amount,
+          savings: Number(saving.toFixed(3)),
+          finalAmount: Number(finalAmount.toFixed(3)),
+        }),
+      })
+        .then((data) => setAi({ key, text: data.explanation || null, loading: false }))
+        .catch(() => setAi({ key, text: null, loading: false }));
+    }, 400);
+    return () => window.clearTimeout(timer);
+  }, [match, amount, saving, finalAmount]);
 
   const visible = match ? match.eligibleOffers.map(mapApiOffer) : offers;
   const searching = query.trim().length >= 2 && match !== null;
@@ -91,6 +121,12 @@ function OffersPage() {
                 <div className="text-xs font-bold"><span className="mb-1 block uppercase text-muted-foreground">You save</span><b className="text-xl text-rose">{kwd(saving)}</b></div>
                 <div className="text-xs font-bold"><span className="mb-1 block uppercase text-muted-foreground">Final amount</span><b className="text-xl">{kwd(finalAmount)}</b></div>
               </div>
+              {(ai.loading || ai.text) && (
+                <div className="mt-4 rounded-xl bg-secondary p-4">
+                  <small className="block text-[9px] font-bold uppercase text-muted-foreground">Smart Recommendation</small>
+                  <p className="mt-1 text-sm">{ai.loading && !ai.text ? "Generating recommendation…" : ai.text}</p>
+                </div>
+              )}
             </section>
           )}
           {emptyMessage && (
