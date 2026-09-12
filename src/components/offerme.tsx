@@ -1,3 +1,4 @@
+import logoAsset from "@/assets/offerme-logo.png.asset.json";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowRight,
