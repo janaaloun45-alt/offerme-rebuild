@@ -61,6 +61,35 @@ function OffersPage() {
   const saving = useMemo(() => (amount * bestPercent) / 100, [amount, bestPercent]);
   const finalAmount = Math.max(amount - saving, 0);
 
+  // AI only explains the already-computed best offer; it never decides or calculates.
+  useEffect(() => {
+    const best = match?.bestOffer;
+    if (!best) {
+      setAi({ key: "", text: null, loading: false });
+      return;
+    }
+    const key = `${best._id}-${amount}`;
+    const timer = window.setTimeout(() => {
+      setAi((prev) => ({ key, text: prev.key === key ? prev.text : null, loading: true }));
+      api<{ explanation: string }>("/api/ai/explain-offer", {
+        method: "POST",
+        body: JSON.stringify({
+          merchantName: best.merchantName,
+          bankName: match?.bestOfferCard?.bankName ?? "",
+          cardName: match?.bestOfferCard?.cardName ?? "",
+          offerType: best.offerType ?? "",
+          offerValue: best.offerValue ?? "",
+          billAmount: amount,
+          savings: Number(saving.toFixed(3)),
+          finalAmount: Number(finalAmount.toFixed(3)),
+        }),
+      })
+        .then((data) => setAi({ key, text: data.explanation || null, loading: false }))
+        .catch(() => setAi({ key, text: null, loading: false }));
+    }, 400);
+    return () => window.clearTimeout(timer);
+  }, [match, amount, saving, finalAmount]);
+
   const visible = match ? match.eligibleOffers.map(mapApiOffer) : offers;
   const searching = query.trim().length >= 2 && match !== null;
 
