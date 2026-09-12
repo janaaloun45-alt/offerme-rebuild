@@ -7,6 +7,8 @@ import cinema from "@/assets/demo-cinema.jpg";
 import yogurt from "@/assets/demo-yogurt.jpg";
 import fashion from "@/assets/demo-fashion.jpg";
 import dining from "@/assets/demo-dining.jpg";
+import type { ApiOffer } from "@/lib/api";
+
 
 export const primaryOffer = { name: "Caribou Coffee", category: "Coffee & Bakery", perk: "20% OFF", description: "Direct 20% discount on handcrafted beverages and breakfast bakery items.", bank: "NBK Visa Platinum", tag: "AUTO-APPLIED", image: coffee, location: "0.6 km · Kuwait City Hub", savings: "KD 1.000" };
 
@@ -18,6 +20,24 @@ export const offers = [
   { name: "Zara Kuwait", category: "Fashion & Apparel", perk: "10% BONUS PTS", description: "Demo reward points on selected seasonal collections.", bank: "Boubyan Visa Signature", tag: "LIFESTYLE 360", image: fashion, location: "All Kuwait Branches", savings: "KD 6.000" },
   { name: "Dean & Deluca", category: "Fine Bistro & Gourmet", perk: "20% DINE-IN", description: "Demo direct bill discount on food and drinks.", bank: "Gulf Bank Mastercard", tag: "DIRECT POS", image: dining, location: "The Avenues Grand Avenue", savings: "KD 2.450" },
 ];
+
+const categoryImages: Record<string, string> = { Dining: dining, Entertainment: cinema, Fashion: fashion, Coffee: coffee };
+
+export function mapApiOffer(offer: ApiOffer): typeof primaryOffer {
+  const card = offer.eligibleCards?.[0];
+  return {
+    name: offer.merchantName,
+    category: offer.category ?? "Demo offer",
+    perk: (offer.offerValue ?? "OFFER").toUpperCase(),
+    description: offer.description ?? "",
+    bank: card ? `${card.bankName} · ${card.cardName}` : "Eligible card",
+    tag: (offer.offerType ?? "DEMO").toUpperCase(),
+    image: offer.imageUrl || categoryImages[offer.category ?? ""] || dining,
+    location: "Kuwait",
+    savings: "Demo",
+  };
+}
+
 
 export const categories = [
   { name: "Coffee", count: 48, icon: Coffee }, { name: "Dining & Lounges", count: 62, icon: Utensils },
