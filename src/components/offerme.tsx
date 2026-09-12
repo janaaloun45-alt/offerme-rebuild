@@ -17,7 +17,10 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { api, type ApiCard } from "@/lib/api";
+import { AuthProvider, useAuth } from "@/lib/auth";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -34,9 +37,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export type SavedCard = { bank: string; product: string; code: string };
+export type SavedCard = { bank: string; product: string; code: string; id?: string };
 
-const products: Record<string, string[]> = {
+const fallbackProducts: Record<string, string[]> = {
   "National Bank of Kuwait (NBK)": ["Visa Platinum", "Visa Signature", "Mastercard"],
   "Boubyan Bank": ["Prime Visa", "Visa Signature", "Youth Card"],
   "Kuwait Finance House (KFH)": ["Hesabi Visa", "Visa Platinum", "Mastercard World"],
@@ -44,11 +47,13 @@ const products: Record<string, string[]> = {
   "American Express Middle East": ["Gold Card", "Platinum Card", "Green Card"],
 };
 
-const initialCards: SavedCard[] = [
-  { bank: "National Bank of Kuwait (NBK)", product: "Visa Platinum", code: "NBK" },
-  { bank: "Boubyan Bank", product: "Prime Visa", code: "B" },
-  { bank: "Gulf Bank", product: "red Mastercard", code: "G" },
-];
+function codeFor(bank: string) {
+  return bank.startsWith("National") ? "NBK" : bank.startsWith("American") ? "AMEX" : (bank.split(" ")[0] ?? "CARD");
+}
+
+function toSaved(card: ApiCard): SavedCard {
+  return { bank: card.bankName, product: card.cardName, code: codeFor(card.bankName), id: card._id };
+}
 
 type CardsContextValue = {
   cards: SavedCard[];
@@ -59,36 +64,92 @@ type CardsContextValue = {
 const CardsContext = createContext<CardsContextValue | undefined>(undefined);
 
 export function OfferMeProvider({ children }: { children: ReactNode }) {
-  const [cards, setCards] = useState(initialCards);
+  return (
+    <AuthProvider>
+      <CardsProvider>{children}</CardsProvider>
+    </AuthProvider>
+  );
+}
+
+function CardsProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+  const [cards, setCards] = useState<SavedCard[]>([]);
+  const [catalogue, setCatalogue] = useState<ApiCard[]>([]);
   const [open, setOpen] = useState(false);
   const [bank, setBank] = useState("");
   const [product, setProduct] = useState("");
   const [message, setMessage] = useState("");
-  const available = useMemo(() => (bank ? products[bank] ?? [] : []), [bank]);
 
-  function addCard() {
+  useEffect(() => {
+    api<{ cards: ApiCard[] }>("/api/cards")
+      .then((data) => setCatalogue(data.cards))
+      .catch(() => setCatalogue([]));
+  }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setCards([]);
+      return;
+    }
+    api<{ cards: ApiCard[] }>("/api/user-cards")
+      .then((data) => setCards(data.cards.map(toSaved)))
+      .catch(() => setCards([]));
+  }, [user]);
+
+  const products = useMemo(() => {
+    if (catalogue.length === 0) return fallbackProducts;
+    const grouped: Record<string, string[]> = {};
+    for (const card of catalogue) {
+      (grouped[card.bankName] ??= []).push(card.cardName);
+    }
+    return grouped;
+  }, [catalogue]);
+
+  const available = useMemo(() => (bank ? products[bank] ?? [] : []), [bank, products]);
+
+  async function addCard() {
     if (!bank || !product) return;
-    const duplicate = cards.some((card) => card.bank === bank && card.product === product);
-    if (duplicate) {
+    if (!user) {
+      setMessage("Please sign in to save cards to your account.");
+      return;
+    }
+    if (cards.some((card) => card.bank === bank && card.product === product)) {
       setMessage("This card is already in My Cards.");
       return;
     }
-    const code = bank.startsWith("National") ? "NBK" : bank.startsWith("American") ? "AMEX" : (bank.split(" ")[0] ?? "CARD");
-    setCards((current) => [...current, { bank, product, code }]);
-    setMessage("Card added successfully");
-    window.setTimeout(() => {
-      setOpen(false);
-      setBank("");
-      setProduct("");
-      setMessage("");
-    }, 700);
+    try {
+      const data = await api<{ cards: ApiCard[] }>("/api/user-cards", {
+        method: "POST",
+        body: JSON.stringify({ bankName: bank, cardName: product }),
+      });
+      setCards(data.cards.map(toSaved));
+      setMessage("Card added successfully");
+      window.setTimeout(() => {
+        setOpen(false);
+        setBank("");
+        setProduct("");
+        setMessage("");
+      }, 700);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Could not add this card.");
+    }
+  }
+
+  async function removeCard(card: SavedCard) {
+    if (!card.id) return;
+    try {
+      const data = await api<{ cards: ApiCard[] }>(`/api/user-cards/${card.id}`, { method: "DELETE" });
+      setCards(data.cards.map(toSaved));
+    } catch {
+      /* keep current list on failure */
+    }
   }
 
   return (
     <CardsContext.Provider
       value={{
         cards,
-        removeCard: (card) => setCards((current) => current.filter((item) => item.bank !== card.bank || item.product !== card.product)),
+        removeCard: (card) => void removeCard(card),
         openAddCard: () => setOpen(true),
       }}
     >
@@ -116,7 +177,7 @@ export function OfferMeProvider({ children }: { children: ReactNode }) {
               </Select>
             </div>
             {message && <p role="status" className="rounded-lg bg-rose-soft px-4 py-3 text-sm font-semibold text-accent-foreground">{message}</p>}
-            <Button onClick={addCard} disabled={!bank || !product} className="h-12 w-full rounded-full">Add to My Cards</Button>
+            <Button onClick={() => void addCard()} disabled={!bank || !product} className="h-12 w-full rounded-full">Add to My Cards</Button>
             <p className="text-center text-xs text-muted-foreground">Only your bank and card product are saved. Never card numbers or banking credentials.</p>
           </div>
         </DialogContent>
@@ -131,12 +192,34 @@ export function useCards() {
   return value;
 }
 
+
 const nav = [
   { to: "/", label: "Home" },
   { to: "/offers", label: "Find Offers" },
   { to: "/my-cards", label: "My Cards" },
   { to: "/savings", label: "Savings & Perks" },
 ] as const;
+
+function HeaderAccount() {
+  const { user, logout } = useAuth();
+  if (!user) {
+    return (
+      <Link to="/auth" className="hidden items-center gap-2 rounded-full bg-secondary px-3 py-1.5 text-xs 2xl:flex">
+        <span className="grid h-7 w-7 place-items-center rounded-full bg-card font-bold">OA</span>
+        <span><b className="block">Sign in</b><small className="text-rose">Save your cards</small></span>
+        <ChevronDown className="h-3 w-3" />
+      </Link>
+    );
+  }
+  return (
+    <button type="button" onClick={logout} className="hidden items-center gap-2 rounded-full bg-secondary px-3 py-1.5 text-xs 2xl:flex">
+      <span className="grid h-7 w-7 place-items-center rounded-full bg-card font-bold">{user.name.slice(0, 2).toUpperCase()}</span>
+      <span className="text-left"><b className="block">{user.name}</b><small className="text-rose">Sign out</small></span>
+      <ChevronDown className="h-3 w-3" />
+    </button>
+  );
+}
+
 
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -155,7 +238,7 @@ export function SiteHeader() {
           <label className="flex h-10 max-w-xs flex-1 items-center gap-2 rounded-full bg-secondary px-4 text-xs text-muted-foreground"><Search className="h-4 w-4" /><input className="min-w-0 flex-1 bg-transparent outline-none" placeholder="Search cafes, retail, dining..." /><kbd className="rounded bg-card px-1.5 py-0.5">⌘K</kbd></label>
           <div className="hidden items-center gap-2 rounded-full bg-secondary px-4 py-2 text-xs xl:flex"><MapPin className="h-4 w-4 text-rose" /> Kuwait City · The Avenues</div>
           <Button variant="ghost" size="icon" aria-label="Notifications"><Bell /></Button>
-          <div className="hidden items-center gap-2 rounded-full bg-secondary px-3 py-1.5 text-xs 2xl:flex"><span className="grid h-7 w-7 place-items-center rounded-full bg-card font-bold">OA</span><span><b className="block">OfferMe Guest</b><small className="text-rose">Demo profile</small></span><ChevronDown className="h-3 w-3" /></div>
+          <HeaderAccount />
         </div>
       </div>
     </header>
