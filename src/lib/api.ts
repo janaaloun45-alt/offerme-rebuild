@@ -1,4 +1,5 @@
-const API_URL = import.meta.env['VITE_API_URL'] as string | undefined;
+const API_URL =
+  (import.meta.env['VITE_API_URL'] as string | undefined) ?? "https://offerme-api.onrender.com";
 const TOKEN_KEY = "offerme_token";
 
 export function getToken(): string | null {
