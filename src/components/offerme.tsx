@@ -200,6 +200,27 @@ const nav = [
   { to: "/savings", label: "Savings & Perks" },
 ] as const;
 
+function HeaderAccount() {
+  const { user, logout } = useAuth();
+  if (!user) {
+    return (
+      <Link to="/auth" className="hidden items-center gap-2 rounded-full bg-secondary px-3 py-1.5 text-xs 2xl:flex">
+        <span className="grid h-7 w-7 place-items-center rounded-full bg-card font-bold">OA</span>
+        <span><b className="block">Sign in</b><small className="text-rose">Save your cards</small></span>
+        <ChevronDown className="h-3 w-3" />
+      </Link>
+    );
+  }
+  return (
+    <button type="button" onClick={logout} className="hidden items-center gap-2 rounded-full bg-secondary px-3 py-1.5 text-xs 2xl:flex">
+      <span className="grid h-7 w-7 place-items-center rounded-full bg-card font-bold">{user.name.slice(0, 2).toUpperCase()}</span>
+      <span className="text-left"><b className="block">{user.name}</b><small className="text-rose">Sign out</small></span>
+      <ChevronDown className="h-3 w-3" />
+    </button>
+  );
+}
+
+
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   return (
