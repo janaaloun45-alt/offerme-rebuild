@@ -1,4 +1,4 @@
-const API_URL = (import.meta.env['VITE_API_URL'] as string | undefined) ?? "http://localhost:5000";
+const API_URL = import.meta.env['VITE_API_URL'] as string | undefined;
 const TOKEN_KEY = "offerme_token";
 
 export function getToken(): string | null {
