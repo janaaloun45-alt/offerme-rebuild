@@ -1,12 +1,14 @@
 import { Link } from "@tanstack/react-router";
 import { Bookmark, Coffee, Film, MapPin, Plane, Search, ShoppingBag, Smartphone, Utensils } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import coffee from "@/assets/demo-coffee.jpg";
-import arabica from "@/assets/demo-arabica.jpg";
-import cinema from "@/assets/demo-cinema.jpg";
-import yogurt from "@/assets/demo-yogurt.jpg";
-import fashion from "@/assets/demo-fashion.jpg";
-import dining from "@/assets/demo-dining.jpg";
+import coffee from "@/assets/merchants/caribou.jpg";
+import arabica from "@/assets/merchants/arabica.jpg";
+import cinema from "@/assets/merchants/vox-cinemas.jpg";
+import yogurt from "@/assets/merchants/pick.jpg";
+import fashion from "@/assets/merchants/zara.jpg";
+import dining from "@/assets/merchants/dean-deluca.jpg";
+import nike from "@/assets/merchants/nike.jpg";
+import shakeShack from "@/assets/merchants/shake-shack.jpg";
 import type { ApiOffer } from "@/lib/api";
 
 
