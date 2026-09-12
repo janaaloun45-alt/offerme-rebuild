@@ -25,6 +25,23 @@ export const offers = [
 
 const categoryImages: Record<string, string> = { Dining: dining, Entertainment: cinema, Fashion: fashion, Coffee: coffee };
 
+const merchantImages: Record<string, string> = {
+  caribou: coffee,
+  arabica: arabica,
+  vox: cinema,
+  pick: yogurt,
+  zara: fashion,
+  dean: dining,
+  nike: nike,
+  "shake shack": shakeShack,
+};
+
+function merchantImage(name: string) {
+  const key = name.toLowerCase();
+  const match = Object.keys(merchantImages).find((k) => key.includes(k));
+  return match ? merchantImages[match] : undefined;
+}
+
 export function mapApiOffer(offer: ApiOffer): typeof primaryOffer {
   const card = offer.eligibleCards?.[0];
   return {
@@ -34,7 +51,7 @@ export function mapApiOffer(offer: ApiOffer): typeof primaryOffer {
     description: offer.description ?? "",
     bank: card ? `${card.bankName} · ${card.cardName}` : "Eligible card",
     tag: (offer.offerType ?? "DEMO").toUpperCase(),
-    image: offer.imageUrl || categoryImages[offer.category ?? ""] || dining,
+    image: merchantImage(offer.merchantName) || offer.imageUrl || categoryImages[offer.category ?? ""] || dining,
     location: "Kuwait",
     savings: "Demo",
   };
