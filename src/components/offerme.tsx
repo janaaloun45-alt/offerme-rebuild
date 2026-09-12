@@ -17,7 +17,10 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { api, type ApiCard } from "@/lib/api";
+import { AuthProvider, useAuth } from "@/lib/auth";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
