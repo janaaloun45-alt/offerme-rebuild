@@ -19,12 +19,25 @@ app.use(
   cors({
     origin(origin, callback) {
       // Allow same-origin/curl (no Origin header), explicit FRONTEND_URL list,
-      // and any Lovable preview/published domain.
-      if (!origin || allowedOrigins.includes(origin) || /\.lovable\.app$/.test(new URL(origin).hostname)) {
-        return callback(null, true);
+      // Lovable preview/published domains, Vercel deployments, and localhost.
+      if (!origin) return callback(null, true);
+      let hostname = "";
+      try {
+        hostname = new URL(origin).hostname;
+      } catch {
+        return callback(null, false);
       }
-      return callback(new Error("Not allowed by CORS"));
+      const allowed =
+        allowedOrigins.includes(origin) ||
+        /(^|\.)lovable\.app$/.test(hostname) ||
+        /(^|\.)vercel\.app$/.test(hostname) ||
+        hostname === "localhost" ||
+        hostname === "127.0.0.1";
+      return callback(null, allowed);
     },
+    credentials: false,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
 
