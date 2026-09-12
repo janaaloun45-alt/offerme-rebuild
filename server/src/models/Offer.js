@@ -6,6 +6,7 @@ const offerSchema = new mongoose.Schema({
   eligibleCards: [{ type: mongoose.Schema.Types.ObjectId, ref: "Card" }],
   offerType: { type: String, default: "" },
   offerValue: { type: String, default: "" },
+  valuePercent: { type: Number, default: 0 },
   description: { type: String, default: "" },
   expiryDate: { type: Date },
   isActive: { type: Boolean, default: true },
