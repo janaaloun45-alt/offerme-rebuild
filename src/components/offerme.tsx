@@ -217,7 +217,7 @@ export function SiteHeader() {
           <label className="flex h-10 max-w-xs flex-1 items-center gap-2 rounded-full bg-secondary px-4 text-xs text-muted-foreground"><Search className="h-4 w-4" /><input className="min-w-0 flex-1 bg-transparent outline-none" placeholder="Search cafes, retail, dining..." /><kbd className="rounded bg-card px-1.5 py-0.5">⌘K</kbd></label>
           <div className="hidden items-center gap-2 rounded-full bg-secondary px-4 py-2 text-xs xl:flex"><MapPin className="h-4 w-4 text-rose" /> Kuwait City · The Avenues</div>
           <Button variant="ghost" size="icon" aria-label="Notifications"><Bell /></Button>
-          <div className="hidden items-center gap-2 rounded-full bg-secondary px-3 py-1.5 text-xs 2xl:flex"><span className="grid h-7 w-7 place-items-center rounded-full bg-card font-bold">OA</span><span><b className="block">OfferMe Guest</b><small className="text-rose">Demo profile</small></span><ChevronDown className="h-3 w-3" /></div>
+          <HeaderAccount />
         </div>
       </div>
     </header>
