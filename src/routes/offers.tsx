@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import { explainOffer } from "@/lib/ai.functions";
+import { buildOfferExplanation } from "@/lib/offer-explanation";
 import { Check, Grid2X2, MapPin, Search, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CardsPanel, DemoNotice, PageShell } from "@/components/offerme";
@@ -72,22 +73,23 @@ function OffersPage() {
       return;
     }
     const key = `${best._id}-${amount}`;
+    const facts = {
+      merchantName: best.merchantName,
+      bankName: match?.bestOfferCard?.bankName ?? "",
+      cardName: match?.bestOfferCard?.cardName ?? "",
+      offerType: best.offerType ?? "",
+      offerValue: best.offerValue ?? "",
+      billAmount: amount,
+      savings: Number(saving.toFixed(3)),
+      finalAmount: Number(finalAmount.toFixed(3)),
+    };
     const timer = window.setTimeout(() => {
       setAi((prev) => ({ key, text: prev.key === key ? prev.text : null, loading: true }));
-      explain({
-        data: {
-          merchantName: best.merchantName,
-          bankName: match?.bestOfferCard?.bankName ?? "",
-          cardName: match?.bestOfferCard?.cardName ?? "",
-          offerType: best.offerType ?? "",
-          offerValue: best.offerValue ?? "",
-          billAmount: amount,
-          savings: Number(saving.toFixed(3)),
-          finalAmount: Number(finalAmount.toFixed(3)),
-        },
-      })
-        .then((data) => setAi({ key, text: data.explanation || null, loading: false }))
-        .catch(() => setAi({ key, text: null, loading: false }));
+      explain({ data: facts })
+        .then((data) => setAi({ key, text: data.explanation || buildOfferExplanation(facts), loading: false }))
+        // AI provider/server function unavailable (e.g. static hosting): fall back
+        // to the deterministic explanation built from the calculated offer data.
+        .catch(() => setAi({ key, text: buildOfferExplanation(facts), loading: false }));
     }, 400);
     return () => window.clearTimeout(timer);
   }, [match, amount, saving, finalAmount]);
