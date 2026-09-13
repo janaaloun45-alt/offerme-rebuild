@@ -2,6 +2,7 @@ import { Router } from "express";
 import jwt from "jsonwebtoken";
 import { Offer } from "../models/Offer.js";
 import { User } from "../models/User.js";
+import { offerScore } from "../offerRanking.js";
 
 export const offersRouter = Router();
 
@@ -21,15 +22,6 @@ function optionalAuth(req, _res, next) {
     }
   }
   next();
-}
-
-// Deterministic, code-only ranking. No AI involved.
-export function offerScore(offer) {
-  if (typeof offer.valuePercent === "number" && offer.valuePercent > 0) return offer.valuePercent;
-  const match = String(offer.offerValue ?? "").match(/(\d+(?:\.\d+)?)\s*%/);
-  if (match) return Number(match[1]);
-  if (/buy\s*1|bogo/i.test(`${offer.offerType} ${offer.offerValue}`)) return 50;
-  return 0;
 }
 
 offersRouter.get("/", async (req, res) => {
