@@ -1,1 +1,2 @@
 - [x] Diagnose and fix the remaining deployed signup fetch failure
+- [ ] Diversify demo offers across banks and verify merchant-dependent matching
