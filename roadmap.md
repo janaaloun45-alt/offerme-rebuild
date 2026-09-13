@@ -1,5 +1,5 @@
 - [x] Diagnose and fix the remaining deployed signup fetch failure
 - [x] Diversify demo offers across banks and verify merchant-dependent matching
 - [x] Route each offer card through merchant-specific live matching instead of the fixed NBK detail
-- [ ] Align all demo offers to exact saved-card products and verify multi-card ranking
-- [ ] Restore the previous savings calculator presentation without changing its calculations or recommendation
+- [x] Align all demo offers to exact saved-card products and verify multi-card ranking
+- [x] Restore the previous savings calculator presentation without changing its calculations or recommendation
