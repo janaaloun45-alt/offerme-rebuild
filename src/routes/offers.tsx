@@ -10,6 +10,9 @@ import { OfferCard, mapApiOffer, offers } from "@/components/offer-content";
 import { api, type ApiCard, type ApiOffer } from "@/lib/api";
 
 export const Route = createFileRoute("/offers")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    merchant: typeof search['merchant'] === "string" ? search['merchant'] : "",
+  }),
   head: () => ({ meta: [
     { title: "Find Offers — OfferMe Kuwait" },
     { name: "description", content: "Search merchants and compare demo perks across your saved card products." },
@@ -41,11 +44,16 @@ function percentOf(offer: ApiOffer) {
 }
 
 function OffersPage() {
-  const [query, setQuery] = useState("");
+  const { merchant } = Route.useSearch();
+  const [query, setQuery] = useState(merchant);
   const [match, setMatch] = useState<MatchResponse | null>(null);
   const [amount, setAmount] = useState(5);
   const [ai, setAi] = useState<{ key: string; text: string | null; loading: boolean }>({ key: "", text: null, loading: false });
   const explain = useServerFn(explainOffer);
+
+  useEffect(() => {
+    setQuery(merchant);
+  }, [merchant]);
 
   useEffect(() => {
     const term = query.trim();
