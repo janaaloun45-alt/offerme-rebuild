@@ -1,2 +1,3 @@
 - [x] Diagnose and fix the remaining deployed signup fetch failure
 - [x] Diversify demo offers across banks and verify merchant-dependent matching
+- [ ] Route each offer card through merchant-specific live matching instead of the fixed NBK detail
