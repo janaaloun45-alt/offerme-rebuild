@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { PageShell } from "@/components/offerme";
 import { explainOffer } from "@/lib/ai.functions";
+import { buildOfferExplanation } from "@/lib/offer-explanation";
 import coffee from "@/assets/merchants/caribou.jpg";
 
 export const Route = createFileRoute("/offer/caribou-coffee")({
@@ -26,19 +27,21 @@ function OfferDetailPage() {
   useEffect(() => {
     let active = true;
     setAi((prev) => ({ text: prev.text, loading: true }));
+    const facts = {
+      merchantName: "Caribou Coffee",
+      bankName: "NBK",
+      cardName: "Visa Platinum",
+      offerType: "Discount",
+      offerValue: "20% off",
+      billAmount: Number(amount.toFixed(3)),
+      savings: Number(saving.toFixed(3)),
+      finalAmount: Number(finalAmount.toFixed(3)),
+    };
     const timer = window.setTimeout(() => {
-      explain({ data: {
-        merchantName: "Caribou Coffee",
-        bankName: "NBK",
-        cardName: "Visa Platinum",
-        offerType: "Discount",
-        offerValue: "20% off",
-        billAmount: Number(amount.toFixed(3)),
-        savings: Number(saving.toFixed(3)),
-        finalAmount: Number(finalAmount.toFixed(3)),
-      } })
-        .then((data) => { if (active) setAi({ text: data.explanation || null, loading: false }); })
-        .catch(() => { if (active) setAi({ text: null, loading: false }); });
+      explain({ data: facts })
+        .then((data) => { if (active) setAi({ text: data.explanation || buildOfferExplanation(facts), loading: false }); })
+        // Fall back to the deterministic explanation when the AI call fails.
+        .catch(() => { if (active) setAi({ text: buildOfferExplanation(facts), loading: false }); });
     }, 400);
     return () => { active = false; window.clearTimeout(timer); };
   }, [amount, saving, finalAmount]);

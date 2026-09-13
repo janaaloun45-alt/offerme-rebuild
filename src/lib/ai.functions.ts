@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { buildOfferExplanation } from "@/lib/offer-explanation";
 
 export type ExplainOfferInput = {
   merchantName: string;
@@ -24,10 +25,11 @@ export const explainOffer = createServerFn({ method: "POST" })
     savings: Number(input.savings ?? 0),
     finalAmount: Number(input.finalAmount ?? 0),
   }))
-  .handler(async ({ data }): Promise<{ explanation: string | null }> => {
+  .handler(async ({ data }): Promise<{ explanation: string }> => {
+    const fallback = buildOfferExplanation(data);
     const apiKey = process.env['OPENROUTER_API_KEY'];
-    if (!apiKey) return { explanation: null };
-    if (!data.merchantName || !data.cardName) return { explanation: null };
+    if (!apiKey) return { explanation: fallback };
+    if (!data.merchantName || !data.cardName) return { explanation: fallback };
 
     const prompt = [
       "You are OfferMe's assistant. Explain this card offer in at most 2-3 short sentences.",
@@ -60,11 +62,11 @@ export const explainOffer = createServerFn({ method: "POST" })
       };
       if (!response.ok) {
         console.error("OpenRouter error:", payload?.error?.message ?? response.status);
-        return { explanation: null };
+        return { explanation: fallback };
       }
-      return { explanation: payload?.choices?.[0]?.message?.content?.trim() || null };
+      return { explanation: payload?.choices?.[0]?.message?.content?.trim() || fallback };
     } catch (error) {
       console.error("OpenRouter request failed:", error);
-      return { explanation: null };
+      return { explanation: fallback };
     }
   });
