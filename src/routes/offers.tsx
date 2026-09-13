@@ -11,7 +11,7 @@ import { api, type ApiCard, type ApiOffer } from "@/lib/api";
 
 export const Route = createFileRoute("/offers")({
   validateSearch: (search: Record<string, unknown>) => ({
-    merchant: typeof search.merchant === "string" ? search.merchant : "",
+    merchant: typeof search['merchant'] === "string" ? search['merchant'] : "",
   }),
   head: () => ({ meta: [
     { title: "Find Offers — OfferMe Kuwait" },

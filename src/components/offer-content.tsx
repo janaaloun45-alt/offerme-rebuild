@@ -65,7 +65,7 @@ export const categories = [
 ];
 
 export function SearchBar({ button = true }: { button?: boolean }) {
-  return <div className="flex flex-col gap-2 rounded-2xl bg-card p-2 soft-shadow sm:flex-row"><div className="flex min-w-0 flex-1 items-center gap-3 px-3"><Search className="h-5 w-5 shrink-0 text-rose" /><input className="h-11 min-w-0 flex-1 bg-transparent text-sm outline-none" placeholder="Search Caribou, Zara, Pick, VOX, % Arabica..." /></div>{button && <Button asChild className="h-11 rounded-full px-7"><Link to="/offers">Find My Offers</Link></Button>}</div>;
+  return <div className="flex flex-col gap-2 rounded-2xl bg-card p-2 soft-shadow sm:flex-row"><div className="flex min-w-0 flex-1 items-center gap-3 px-3"><Search className="h-5 w-5 shrink-0 text-rose" /><input className="h-11 min-w-0 flex-1 bg-transparent text-sm outline-none" placeholder="Search Caribou, Zara, Pick, VOX, % Arabica..." /></div>{button && <Button asChild className="h-11 rounded-full px-7"><Link to="/offers" search={{ merchant: "" }}>Find My Offers</Link></Button>}</div>;
 }
 
 export function OfferCard({ offer = primaryOffer, detailed = false }: { offer?: typeof primaryOffer; detailed?: boolean }) {
