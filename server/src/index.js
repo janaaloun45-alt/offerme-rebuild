@@ -5,6 +5,7 @@ import { connectDB } from "./db.js";
 import { authRouter } from "./routes/auth.js";
 import { cardsRouter } from "./routes/cards.js";
 import { offersRouter } from "./routes/offers.js";
+import { seedDemoData } from "./seedDemoData.js";
 import { userCardsRouter } from "./routes/userCards.js";
 
 
@@ -59,8 +60,10 @@ app.use((err, _req, res, _next) => {
 const port = Number(process.env.PORT ?? 5000);
 
 connectDB()
-  .then(() => {
+  .then(async () => {
     console.log("MongoDB connected (database: offerme)");
+    const seeded = await seedDemoData();
+    console.log(`Demo catalogue ready (${seeded.cards} cards, ${seeded.offers} offers).`);
     app.listen(port, () => console.log(`OfferMe API listening on port ${port}`));
   })
   .catch((error) => {
