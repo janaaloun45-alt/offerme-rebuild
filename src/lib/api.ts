@@ -41,6 +41,7 @@ export type ApiOffer = {
   category?: string;
   offerType?: string;
   offerValue?: string;
+  valuePercent?: number;
   description?: string;
   imageUrl?: string;
   eligibleCards?: ApiCard[];
